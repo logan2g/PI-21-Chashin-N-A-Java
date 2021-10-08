@@ -7,7 +7,8 @@ public class Window {
     private static final int windowHeight = 600;
     private static final int windowWidth = 800;
     //buttons
-    private JButton btnCreate;
+    private JButton btnCreateZenit;
+    private JButton btnCreateBase;
     private JButton btnUp;
     private JButton btnDown;
     private JButton btnLeft;
@@ -26,20 +27,24 @@ public class Window {
         //buttons
         //init
         btns = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        btnCreate = new JButton("Создать");
+        btnCreateZenit = new JButton("Создать зенитку");
+        btnCreateBase = new JButton("Создать базу");
         btnDown = new JButton("\\|/");
         btnUp = new JButton("/|\\");
         btnLeft = new JButton("<=");
         btnRight = new JButton("=>");
         //adding
-        btns.add(btnCreate);
+        btns.add(btnCreateBase);
+        btns.add(btnCreateZenit);
         btns.add(btnLeft);
         btns.add(btnUp);
         btns.add(btnDown);
         btns.add(btnRight);
         //conn with listeners
-        btnCreate.setActionCommand("create");
-        btnCreate.addActionListener(pc);
+        btnCreateBase.setActionCommand("createBase");
+        btnCreateBase.addActionListener(pc);
+        btnCreateZenit.setActionCommand("createZenit");
+        btnCreateZenit.addActionListener(pc);
         btnUp.setActionCommand("up");
         btnUp.addActionListener(pc);
         btnDown.setActionCommand("down");

@@ -13,7 +13,7 @@ public class paintClass extends JComponent implements ActionListener {
     private Image holst = new BufferedImage(windowWidth, windowHeight, BufferedImage.TYPE_INT_RGB);
     private Graphics2D g2d = (Graphics2D) holst.getGraphics();
     private Random r;
-    private Zenit zenitka;
+    private ITransport zenitka;
 
     public paintClass(){
         super();
@@ -37,12 +37,15 @@ public class paintClass extends JComponent implements ActionListener {
     public void actionPerformed(ActionEvent e){
         prepare_holst();
         switch(e.getActionCommand()){
-            case "create":
-                zenitka = new Zenit();
-                zenitka.Init(r.nextInt(200) + 100, r.nextInt(1000) + 1000,
-                        Color.BLACK, Color.GREEN, true, true, true);
-                zenitka.SetPosition(r.nextInt(100) + 10, r.nextInt(100) + 20,
-                        windowWidth, windowHeight - 60);
+            case "createBase":
+                zenitka = new BroneCar(r.nextInt(200) + 100, r.nextInt(1000) + 1000,
+                        Color.BLACK, false);
+                zenitka.SetPosition(r.nextInt(100) + 10, r.nextInt(100) + 20, windowWidth, windowHeight - 60);
+                break;
+            case "createZenit":
+                zenitka = new BroneZenit(r.nextInt(200) + 100, r.nextInt(1000) + 1000,
+                        Color.BLACK, Color.GREEN, true, true, 2, 6);
+                zenitka.SetPosition(r.nextInt(100) + 10, r.nextInt(100) + 20, windowWidth, windowHeight - 60);
                 break;
             case "up":
                 zenitka.MoveTransport(Direction.Up);
