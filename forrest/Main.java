@@ -3,6 +3,6 @@ package forrest;
 public class Main {
 
     public static void main(String[] args) {
-        Window myWind = new Window();
+        WindowParking myWind = new WindowParking();
     }
 }
