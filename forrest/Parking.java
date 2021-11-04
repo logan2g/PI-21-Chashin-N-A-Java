@@ -1,11 +1,14 @@
 package forrest;
 
 import java.awt.*;
+import java.util.LinkedList;
+import java.util.List;
 
 public class Parking <T extends ITransport, V extends IWeapon>{
-    private final T[] _places;
+    private final List<T> _places;
     private final int pictureWidth;
     private final int pictureHeight;
+    private final int _maxCount;
     private final int _placeSizeWidth = 210;
     private final int _placeSizeHeight = 140;
 
@@ -13,40 +16,36 @@ public class Parking <T extends ITransport, V extends IWeapon>{
     {
         int width = picWidth / _placeSizeWidth;
         int height = picHeight / _placeSizeHeight;
-        _places = (T[]) new ITransport[width * height];
+        _maxCount = width * height;
+        _places = new LinkedList<>();
         pictureWidth = picWidth;
         pictureHeight = picHeight;
     }
 
     private boolean CheckFreePlace(int index)
     {
-        return _places[index] == null;
+        return _places.get(index) == null;
     }
 
-    public int add(T car)
+    public boolean add(T car)
     {
-        for (int i = 0; i < _places.length; i++)
+        if(_places.size() < _maxCount)
         {
-            if (CheckFreePlace(i))
-            {
-                _places[i] = car;
-                _places[i].SetPosition(20 + i % 4 * _placeSizeWidth, i / 4 * _placeSizeHeight + 15, pictureWidth, pictureHeight);
-                return i;
-            }
+            _places.add(car);
+            return true;
         }
-        return -1;
+        return false;
     }
 
     public T takeBrone (int index)
     {
-        if (index < 0 || index > _places.length)
+        if (index < 0 || index > _places.size())
         {
             return null;
         }
         if (!CheckFreePlace(index))
         {
-            T car = _places[index];
-            _places[index] = null;
+            T car = _places.remove(index);
             return car;
         }
         return null;
@@ -54,11 +53,8 @@ public class Parking <T extends ITransport, V extends IWeapon>{
 
     public boolean isLower(BroneCar car){
         long min_h = Integer.MAX_VALUE;
-        for(int i = 0; i < _places.length; i++){
-            if(_places[i] != null)
-            {
-                if(_places[i].hashCode() < min_h) min_h = _places[i].hashCode();
-            }
+        for(int i = 0; i < _places.size(); i++) {
+            if (_places.get(i).hashCode() < min_h) min_h = _places.get(i).hashCode();
         }
         if(car.hashCode() < min_h) return true;
         return false;
@@ -66,11 +62,8 @@ public class Parking <T extends ITransport, V extends IWeapon>{
 
     public boolean isBigger(BroneCar car){
         long max_h = Integer.MIN_VALUE;
-        for(int i = 0; i < _places.length; i++){
-            if(_places[i] != null)
-            {
-                if(_places[i].hashCode() > max_h) max_h = _places[i].hashCode();
-            }
+        for(int i = 0; i < _places.size(); i++) {
+            if (_places.get(i).hashCode() > max_h) max_h = _places.get(i).hashCode();
         }
         if(car.hashCode() > max_h) return true;
         return false;
@@ -79,9 +72,10 @@ public class Parking <T extends ITransport, V extends IWeapon>{
     public void Draw(Graphics2D g)
     {
         DrawMarking(g);
-        for (int i = 0; i < _places.length; i++)
+        for (int i = 0; i < _places.size(); i++)
         {
-            if(_places[i] != null) _places[i].DrawTransport(g);
+            _places.get(i).SetPosition(20 + i % 4 * _placeSizeWidth, i / 4 * _placeSizeHeight + 15, pictureWidth, pictureHeight);
+            _places.get(i).DrawTransport(g);
         }
     }
 
@@ -97,5 +91,10 @@ public class Parking <T extends ITransport, V extends IWeapon>{
             g.drawLine(i * _placeSizeWidth, 0, i * _placeSizeWidth, (pictureHeight / _placeSizeHeight) * _placeSizeHeight);
         }
         g.setStroke(new BasicStroke(1));
+    }
+
+    public T getValue(int ind){
+        if(ind > -1 && ind < _places.size()) return _places.get(ind);
+        return null;
     }
 }
