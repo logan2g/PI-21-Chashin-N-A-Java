@@ -63,6 +63,16 @@ public class WindowParkingPaint extends JComponent implements ActionListener, Li
         Draw();
     }
 
+    private void addCar(ITransport car) {
+        if (car != null && WindowParking.lBParkings.getSelectedIndex() > -1) {
+            if (parkingCollection.getValue(WindowParking.lBParkings.getModel().getElementAt(WindowParking.lBParkings.getSelectedIndex())).add(car)) {
+                Draw();
+            } else {
+                JOptionPane.showMessageDialog(null, "Транспорт не удалось поставить");
+            }
+        }
+    }
+
     public void actionPerformed(ActionEvent e){
         switch(e.getActionCommand()){
             case "addPark":
@@ -83,37 +93,13 @@ public class WindowParkingPaint extends JComponent implements ActionListener, Li
                     }
                 }
                 break;
-            case "setBron":
-                if(WindowParking.lBParkings.getSelectedIndex() > -1) {
-                    Color mainColor = JColorChooser.showDialog(null, "Choose a main color", Color.RED);
-                    ;
-                    if (mainColor != null) {
-                        ITransport car = new BroneCar(100, 1000, mainColor, false);
-                        Parking parking = parkingCollection.getValue(WindowParking.lBParkings.getModel().getElementAt(WindowParking.lBParkings.getSelectedIndex()));
-                        if (parking.add(car)) {
-                            Draw();
-                        } else {
-                            JOptionPane.showMessageDialog(null, "Парковка переполнена");
-                        }
-                    }
+            case "add":
+                try {
+                    WindowBronConfig formConf = new WindowBronConfig();
+                    formConf.addEvent(this::addCar);
                 }
-                break;
-            case "setZenit":
-                if(WindowParking.lBParkings.getSelectedIndex() > -1) {
-                    Color mainColor = JColorChooser.showDialog(null, "Choose a main color", Color.RED);
-                    if (mainColor != null) {
-                        Color dopColor = JColorChooser.showDialog(null, "Choose an additional color", Color.RED);
-                        if (dopColor != null) {
-                            ITransport car = new BroneZenit(100, 1000, mainColor, dopColor,
-                                    true, true, 2, 4);
-                            Parking parking = parkingCollection.getValue(WindowParking.lBParkings.getModel().getElementAt(WindowParking.lBParkings.getSelectedIndex()));
-                            if (parking.add(car)) {
-                                Draw();
-                            } else {
-                                JOptionPane.showMessageDialog(null, "Парковка переполнена");
-                            }
-                        }
-                    }
+                catch (Exception ex) {
+                    ex.printStackTrace();
                 }
                 break;
             case "take":
