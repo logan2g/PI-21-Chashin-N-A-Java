@@ -14,9 +14,6 @@ public class BroneZenit extends BroneCar{
         Weapon = weapon;
         Head = head;
         switch(varWeapon){
-            case 1:
-                pn = new Weapon1();
-                break;
             case 2:
                 pn = new Weapon2();
                 break;
@@ -27,7 +24,19 @@ public class BroneZenit extends BroneCar{
                 pn = new Weapon1();
                 break;
         }
-        pn.setn_w(n_weapon);
+        setn_w(n_weapon);
+    }
+
+    public void setDopColor(Color color){
+        DopColor = color;
+    }
+
+    public void setWeapon(IWeapon weapon){
+        pn = weapon;
+    }
+
+    public void setn_w(int n){
+        pn.setn_w(n);
     }
 
     @Override
@@ -39,9 +48,11 @@ public class BroneZenit extends BroneCar{
         g.setColor(DopColor);
         g.fillRect((int) _startPosX + 45, (int) _startPosY + 20, 60, 25);
         g.fillRect((int)_startPosX, (int) _startPosY + 45, 160, 35);
-        g.setStroke(new BasicStroke(5));
-        pn.DrawWeapon(g, (int) _startPosX, (int) _startPosY);
-        g.setStroke(new BasicStroke(1));
-        g.fillOval((int) _startPosX + 60, (int) _startPosY, 20, 20);
+        if(Weapon) {
+            g.setStroke(new BasicStroke(5));
+            pn.DrawWeapon(g, (int) _startPosX, (int) _startPosY);
+            g.setStroke(new BasicStroke(1));
+        }
+        if(Head) g.fillOval((int) _startPosX + 60, (int) _startPosY, 20, 20);
     }
 }

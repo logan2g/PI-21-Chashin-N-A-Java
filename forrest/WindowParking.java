@@ -8,8 +8,7 @@ public class WindowParking {
     private static final int windowHeight = 600;
     private static final int windowWidth = 1100;
     //buttons
-    private JButton btnSetBroneCar;
-    private JButton btnSetZenit;
+    private JButton btnaddBronCar;
     private JButton btnTake;
     private JButton btnAddPark;
     private JButton btnDelPark;
@@ -41,8 +40,7 @@ public class WindowParking {
         elems.setBounds(890,0,200,windowHeight);
         //start init
         //btns
-        btnSetBroneCar = new JButton("Припарковать бронемашину");
-        btnSetZenit = new JButton("Припарковать зенитку");
+        btnaddBronCar = new JButton("       Добавить          ");
         btnTake = new JButton("     Отложить в Стек      ");
         btnAddPark = new JButton("       Добавить парковку       ");
         btnDelPark = new JButton("       Удалить парковку         ");
@@ -75,8 +73,7 @@ public class WindowParking {
         elems.add(btnAddPark);
         elems.add(lBParkings);
         elems.add(btnDelPark);
-        elems.add(btnSetBroneCar);
-        elems.add(btnSetZenit);
+        elems.add(btnaddBronCar);
         elems.add(lTakeVeh);
         elems.add(lPos);
         elems.add(tFPos);
@@ -88,10 +85,8 @@ public class WindowParking {
         btnAddPark.addActionListener(pp);
         btnDelPark.setActionCommand("delPark");
         btnDelPark.addActionListener(pp);
-        btnSetBroneCar.setActionCommand("setBron");
-        btnSetBroneCar.addActionListener(pp);
-        btnSetZenit.setActionCommand("setZenit");
-        btnSetZenit.addActionListener(pp);
+        btnaddBronCar.setActionCommand("add");
+        btnaddBronCar.addActionListener(pp);
         btnTake.setActionCommand("take");
         btnTake.addActionListener(pp);
         btnTakeFromStack.setActionCommand("takeStack");

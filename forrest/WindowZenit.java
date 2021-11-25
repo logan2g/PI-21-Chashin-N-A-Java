@@ -17,7 +17,7 @@ public class WindowZenit {
 
     public WindowZenit(ITransport car){
         JFrame fr = new JFrame("Zenit");
-        //fr.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        fr.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         fr.setSize(windowWidth, windowHeight);
         fr.setResizable(false);
         fr.setLocationRelativeTo(null);
