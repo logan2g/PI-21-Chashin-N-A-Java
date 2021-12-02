@@ -22,6 +22,10 @@ public class Parking <T extends ITransport, V extends IWeapon>{
         pictureHeight = picHeight;
     }
 
+    public void clear(){
+        _places.clear();
+    }
+
     private boolean CheckFreePlace(int index)
     {
         return _places.get(index) == null;

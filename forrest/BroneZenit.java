@@ -13,7 +13,12 @@ public class BroneZenit extends BroneCar{
         DopColor = dopColor;
         Weapon = weapon;
         Head = head;
-        switch(varWeapon){
+        setVarWeapon(varWeapon);
+        setn_w(n_weapon);
+    }
+
+    private void setVarWeapon(int var){
+        switch(var){
             case 2:
                 pn = new Weapon2();
                 break;
@@ -24,7 +29,23 @@ public class BroneZenit extends BroneCar{
                 pn = new Weapon1();
                 break;
         }
-        setn_w(n_weapon);
+    }
+
+    public BroneZenit(String info){
+        super(info);
+        String strs[] = info.split(String.valueOf(separator));
+        if (strs.length == 9)
+        {
+            MaxSpeed = Integer.valueOf(strs[0]);
+            Weight = Float.valueOf(strs[1]);
+            MainColor = Color.decode(strs[2]);
+            delta = Boolean.valueOf(strs[3]);
+            DopColor = Color.decode(strs[4]);
+            Weapon = Boolean.valueOf(strs[5]);
+            Head = Boolean.valueOf(strs[6]);
+            setVarWeapon(Integer.valueOf(strs[7]));
+            setn_w(Integer.valueOf(strs[8]));
+        }
     }
 
     public void setDopColor(Color color){
@@ -54,5 +75,10 @@ public class BroneZenit extends BroneCar{
             g.setStroke(new BasicStroke(1));
         }
         if(Head) g.fillOval((int) _startPosX + 60, (int) _startPosY, 20, 20);
+    }
+
+    @Override
+    public String toString() {
+        return super.toString() + separator + DopColor.getRGB() + separator + Weapon + separator + Head + separator + pn.toString();
     }
 }
