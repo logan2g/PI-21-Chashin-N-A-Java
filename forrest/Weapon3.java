@@ -1,29 +1,14 @@
 package forrest;
 
-import javax.swing.*;
 import java.awt.*;
 
-public class Weapon3 implements IWeapon {
-    protected Weapons w = Weapons.n2;
+public class Weapon3 extends abstrWeapon {
 
-    public void setn_w(int n_w){
-        switch(n_w){
-            case 2:
-                w = Weapons.n2;
-                break;
-            case 4:
-                w = Weapons.n4;
-                break;
-            case 6:
-                w = Weapons.n6;
-                break;
-            default:
-                JOptionPane.showMessageDialog(null, "Значение не соответствует значениям перечисления. Будет установлено количество равное 2ум");
-                w = Weapons.n2;
-                break;
-        }
+    public Weapon3(){
+        var = 3;
     }
 
+    @Override
     public void DrawWeapon(Graphics2D g2d, int startX, int startY){
         g2d.fillPolygon(new int[]{startX + 100, startX + 165, startX + 165, startX + 100},
                 new int[]{startY + 28, startY + 17, startY + 21, startY + 30}, 4);

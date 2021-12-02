@@ -1,5 +1,7 @@
 package forrest;
 
+import sun.dc.pr.PathFiller;
+
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
@@ -18,6 +20,7 @@ public class WindowParkingPaint extends JComponent implements ActionListener, Li
     private Random r;
     private ParkingCollection parkingCollection;
     private Stack<ITransport> takenCars;
+    private JFileChooser fileChooser = new JFileChooser();
 
     public WindowParkingPaint(){
         super();
@@ -73,11 +76,11 @@ public class WindowParkingPaint extends JComponent implements ActionListener, Li
         }
     }
 
-    public void actionPerformed(ActionEvent e){
-        switch(e.getActionCommand()){
+    public void actionPerformed(ActionEvent e) {
+        switch (e.getActionCommand()) {
             case "addPark":
                 String parkName = WindowParking.parkNameTf.getText();
-                if(parkName.isEmpty()){
+                if (parkName.isEmpty()) {
                     JOptionPane.showMessageDialog(null, "Введите имя паровки!");
                     return;
                 }
@@ -85,9 +88,9 @@ public class WindowParkingPaint extends JComponent implements ActionListener, Li
                 ReloadLevels();
                 break;
             case "delPark":
-                if(WindowParking.lBParkings.getSelectedIndex() > -1){
+                if (WindowParking.lBParkings.getSelectedIndex() > -1) {
                     int dialRes = JOptionPane.showConfirmDialog(null, "Вы хотите удалить парковку " + WindowParking.lBParkings.getModel().getElementAt(WindowParking.lBParkings.getSelectedIndex()) + " ?", "Предупреждение", JOptionPane.OK_CANCEL_OPTION);
-                    if(dialRes == JOptionPane.OK_OPTION) {
+                    if (dialRes == JOptionPane.OK_OPTION) {
                         parkingCollection.DelParking(WindowParking.lBParkings.getModel().getElementAt(WindowParking.lBParkings.getSelectedIndex()));
                         ReloadLevels();
                     }
@@ -97,33 +100,90 @@ public class WindowParkingPaint extends JComponent implements ActionListener, Li
                 try {
                     WindowBronConfig formConf = new WindowBronConfig();
                     formConf.addEvent(this::addCar);
-                }
-                catch (Exception ex) {
+                } catch (Exception ex) {
                     ex.printStackTrace();
                 }
                 break;
             case "take":
-                if(!WindowParking.tFPos.getText().equals("") && WindowParking.lBParkings.getSelectedIndex() > -1){
-                    String tmp =  WindowParking.tFPos.getText().trim();
-                    if(tmp.isEmpty()){
+                if (!WindowParking.tFPos.getText().equals("") && WindowParking.lBParkings.getSelectedIndex() > -1) {
+                    String tmp = WindowParking.tFPos.getText().trim();
+                    if (tmp.isEmpty()) {
                         JOptionPane.showMessageDialog(null, "Введите номер места!");
                         return;
                     }
                     Parking parking = parkingCollection.getValue(WindowParking.lBParkings.getModel().getElementAt(WindowParking.lBParkings.getSelectedIndex()));
                     ITransport car = parking.takeBrone(Integer.parseInt(tmp));
-                    if(car != null)
-                    {
+                    if (car != null) {
                         takenCars.add(car);
                     }
                     Draw();
                 }
                 break;
             case "takeStack":
-                if(!takenCars.empty()){
+                if (!takenCars.empty()) {
                     WindowZenit wind = new WindowZenit(takenCars.pop());
-                }
-                else{
+                } else {
                     JOptionPane.showMessageDialog(null, "Стек пуст!");
+                }
+                break;
+            case "saveColl":
+                fileChooser.setDialogTitle("Открытие выходного файла");
+                fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+                int result = fileChooser.showOpenDialog(this);
+                if (result == JFileChooser.APPROVE_OPTION) {
+                    JOptionPane.showMessageDialog(this, "Файл \"" + fileChooser.getSelectedFile() + "\" выбран как выходной");
+                    if (parkingCollection.SaveData(fileChooser.getSelectedFile().getAbsolutePath())) {
+                        JOptionPane.showMessageDialog(this, "Сохранили!");
+                    }
+                    else {
+                        JOptionPane.showMessageDialog(this, "Не сохранили!");
+                    }
+                }
+                break;
+            case "loadFileColl":
+                fileChooser.setDialogTitle("Открытие входного файла");
+                fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+                result = fileChooser.showOpenDialog(this);
+                if (result == JFileChooser.APPROVE_OPTION) {
+                    JOptionPane.showMessageDialog(this, "Файл \"" + fileChooser.getSelectedFile() + "\" выбран как входной");
+                    if (parkingCollection.LoadData(fileChooser.getSelectedFile().getAbsolutePath())) {
+                        JOptionPane.showMessageDialog(this, "Загрузили!");
+                        ReloadLevels();
+                        Draw();
+                    }
+                    else {
+                        JOptionPane.showMessageDialog(this, "Не загрузили!");
+                    }
+                }
+                break;
+            case "saveCurLevel":
+                fileChooser.setDialogTitle("Открытие выходного файла");
+                fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+                result = fileChooser.showOpenDialog(this);
+                if (result == JFileChooser.APPROVE_OPTION) {
+                    JOptionPane.showMessageDialog(this, "Файл \"" + fileChooser.getSelectedFile() + "\" выбран как выходной");
+                    if(parkingCollection.saveLevel(fileChooser.getSelectedFile().getAbsolutePath(), WindowParking.lBParkings.getSelectedValue())){
+                        JOptionPane.showMessageDialog(this, "Сохранили!");
+                    }
+                    else {
+                        JOptionPane.showMessageDialog(this, "Не сохранили!");
+                    }
+                }
+                break;
+            case "loadLevel":
+                fileChooser.setDialogTitle("Открытие входного файла");
+                fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+                result = fileChooser.showOpenDialog(this);
+                if (result == JFileChooser.APPROVE_OPTION) {
+                    JOptionPane.showMessageDialog(this, "Файл \"" + fileChooser.getSelectedFile() + "\" выбран как входной");
+                    if (parkingCollection.loadLevel(fileChooser.getSelectedFile().getAbsolutePath())) {
+                        JOptionPane.showMessageDialog(this, "Загрузили!");
+                        ReloadLevels();
+                        Draw();
+                    }
+                    else {
+                        JOptionPane.showMessageDialog(this, "Не загрузили!");
+                    }
                 }
                 break;
         }

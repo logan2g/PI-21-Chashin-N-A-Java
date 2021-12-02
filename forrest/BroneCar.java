@@ -5,7 +5,8 @@ import java.awt.*;
 public class BroneCar extends abstrBron{
     private final int carWidth = 160;
     private final int carHeight = 107;
-    private boolean delta;
+    protected final char separator = ';';
+    protected boolean delta;
 
     public BroneCar(int maxSpeed, float weight, Color mainColor, boolean needDelta)
     {
@@ -13,6 +14,17 @@ public class BroneCar extends abstrBron{
         Weight = weight;
         MainColor = mainColor;
         delta = needDelta;
+    }
+
+    public BroneCar(String info){
+        String strs[] = info.split(String.valueOf(separator));
+        if (strs.length == 4)
+        {
+            MaxSpeed = Integer.valueOf(strs[0]);
+            Weight = Float.valueOf(strs[1]);
+            MainColor = Color.decode(strs[2]);
+            delta = Boolean.valueOf(strs[3]);
+        }
     }
 
     public void MoveTransport(Direction direction)
@@ -62,5 +74,11 @@ public class BroneCar extends abstrBron{
         //Броня
         g.drawRect((int)_startPosX + 45, (int)_startPosY + offset_y, 60, 25);
         g.drawRect((int)_startPosX, (int)_startPosY + 25 + offset_y, 160, 35);
+    }
+
+    @Override
+    public String toString()
+    {
+        return MaxSpeed + String.valueOf(separator) + Weight + separator + MainColor.getRGB() + separator + delta;
     }
 }

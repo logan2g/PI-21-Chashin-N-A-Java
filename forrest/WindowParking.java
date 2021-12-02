@@ -5,7 +5,7 @@ import javax.swing.text.MaskFormatter;
 import java.awt.*;
 
 public class WindowParking {
-    private static final int windowHeight = 600;
+    private static final int windowHeight = 620;
     private static final int windowWidth = 1100;
     //buttons
     private JButton btnaddBronCar;
@@ -25,6 +25,14 @@ public class WindowParking {
     public static JFormattedTextField tFPos;
     //panel
     private JPanel elems;
+    //menuBar
+    private JMenuBar menu;
+    //elems of menu
+    private JMenu fileMenu;
+    private JMenuItem saveColl;
+    private JMenuItem loadColl;
+    private JMenuItem saveLevel;
+    private JMenuItem loadLevel;
 
     public WindowParking(){
         JFrame fr = new JFrame("Parking");
@@ -67,6 +75,13 @@ public class WindowParking {
         catch (Exception ex) {
             ex.printStackTrace();
         }
+        //menu
+        menu = new JMenuBar();
+        fileMenu = new JMenu("File");
+        saveColl = new JMenuItem("Save full collection");
+        loadColl = new JMenuItem("Load full collection");
+        saveLevel = new JMenuItem("Save current level");
+        loadLevel = new JMenuItem("Load level");
         //add
         elems.add(lParkName);
         elems.add(parkNameTf);
@@ -79,6 +94,12 @@ public class WindowParking {
         elems.add(tFPos);
         elems.add(btnTake);
         elems.add(btnTakeFromStack);
+        fileMenu.add(saveColl);
+        fileMenu.add(saveLevel);
+        fileMenu.add(loadColl);
+        fileMenu.add(loadLevel);
+        menu.add(fileMenu);
+        fr.setJMenuBar(menu);
         //listeners
         lBParkings.addListSelectionListener(pp);
         btnAddPark.setActionCommand("addPark");
@@ -91,6 +112,14 @@ public class WindowParking {
         btnTake.addActionListener(pp);
         btnTakeFromStack.setActionCommand("takeStack");
         btnTakeFromStack.addActionListener(pp);
+        saveColl.setActionCommand("saveColl");
+        saveColl.addActionListener(pp);
+        loadColl.setActionCommand("loadFileColl");
+        loadColl.addActionListener(pp);
+        saveLevel.setActionCommand("saveCurLevel");
+        saveLevel.addActionListener(pp);
+        loadLevel.setActionCommand("loadLevel");
+        loadLevel.addActionListener(pp);
         //end init
         fr.add(elems);
         fr.setVisible(true);
