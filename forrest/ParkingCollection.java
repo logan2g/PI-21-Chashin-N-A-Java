@@ -3,10 +3,7 @@ package forrest;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class ParkingCollection {
         private final Map<String, Parking<ITransport, IWeapon>> parkStages;
@@ -51,8 +48,8 @@ public class ParkingCollection {
         return null;
     }
 
-    public boolean saveLevel(String filename, String parkName) {
-        if(!(parkStages.containsKey(parkName))) return false;
+    public void saveLevel(String filename, String parkName) {
+        if(!(parkStages.containsKey(parkName))) throw new IndexOutOfBoundsException();
         try {
             Files.deleteIfExists(Paths.get(filename));
         }
@@ -81,10 +78,9 @@ public class ParkingCollection {
         catch (IOException ex){
             System.out.println(ex.getMessage());
         }
-        return true;
     }
 
-    public boolean SaveData(String filename){
+    public void SaveData(String filename){
         try {
             Files.deleteIfExists(Paths.get(filename));
         }
@@ -115,18 +111,17 @@ public class ParkingCollection {
         catch (IOException ex){
             System.out.println(ex.getMessage());
         }
-        return true;
     }
 
-    public boolean loadLevel(String filename){
+    public void loadLevel(String filename) throws Exception {
         File in = new File(filename);
         if(!in.exists()){
-            return false;
+            throw new FileNotFoundException();
         }
         try(BufferedReader reader = new BufferedReader(new FileReader(in))) {
             String strs = reader.readLine();
             if(!strs.contains("ParkingLevel")){
-                return false;
+                throw new InvalidPropertiesFormatException("Неверный формат файла");
             }
             strs = reader.readLine();
             String key = "";
@@ -137,18 +132,16 @@ public class ParkingCollection {
                 key = strs.split(String.valueOf(separator))[1];
                 if (parkStages.containsKey(key)) parkStages.get(key).clear();
                 else parkStages.put(key, new Parking<ITransport,IWeapon>(pictureWidth, pictureHeight));
-                while((strs = reader.readLine()) != null){
-                    if (strs.contains("BroneCar"))
-                    {
+                while((strs = reader.readLine()) != null) {
+                    if (strs.contains("BroneCar")) {
                         car = new BroneCar(strs.split(String.valueOf(separator))[1]);
-                    }
-                    else if (strs.contains("BroneZenit"))
-                    {
+                    } else if (strs.contains("BroneZenit")) {
                         car = new BroneZenit(strs.split(String.valueOf(separator))[1]);
                     }
-                    if (!(parkStages.get(key).add(car)))
-                    {
-                        return false;
+                    try {
+                        parkStages.get(key).add(car);
+                    } catch (ParkingOverflowException ex) {
+                        //TODO log
                     }
                 }
             }
@@ -156,13 +149,12 @@ public class ParkingCollection {
         catch(IOException ex){
             System.out.println(ex.getMessage());
         }
-        return true;
     }
 
-    public boolean LoadData(String filename){
+    public void LoadData(String filename) throws Exception {
         File in = new File(filename);
         if(!in.exists()){
-            return false;
+            throw new FileNotFoundException();
         }
         try(BufferedReader reader = new BufferedReader(new FileReader(in))) {
             String strs = reader.readLine();
@@ -171,8 +163,7 @@ public class ParkingCollection {
             }
             else
             {
-                //если нет такой записи, то это не те данные
-                return false;
+                throw new InvalidPropertiesFormatException("Неверный формат файла");
             }
             abstrBron car = null;
             String key = "";
@@ -193,9 +184,10 @@ public class ParkingCollection {
                     {
                         car = new BroneZenit(strs.split(String.valueOf(separator))[1]);
                     }
-                    if (!(parkStages.get(key).add(car)))
-                    {
-                        return false;
+                    try {
+                        parkStages.get(key).add(car);
+                    } catch (ParkingOverflowException ex) {
+                        //TODO log
                     }
                 }
             }
@@ -203,6 +195,5 @@ public class ParkingCollection {
         catch(IOException ex){
             System.out.println(ex.getMessage());
         }
-        return true;
     }
 }

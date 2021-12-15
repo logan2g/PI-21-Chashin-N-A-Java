@@ -1,16 +1,13 @@
 package forrest;
 
-import sun.dc.pr.PathFiller;
-
 import javax.swing.*;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
+import javax.swing.event.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.event.*;
 import java.awt.image.BufferedImage;
-import java.util.Random;
-import java.util.Stack;
+import java.util.*;
+import org.apache.log4j.*;
+import org.apache.log4j.xml.*;
 
 public class WindowParkingPaint extends JComponent implements ActionListener, ListSelectionListener {
     private static final int windowHeight = 600;
@@ -21,13 +18,16 @@ public class WindowParkingPaint extends JComponent implements ActionListener, Li
     private ParkingCollection parkingCollection;
     private Stack<ITransport> takenCars;
     private JFileChooser fileChooser = new JFileChooser();
+    private static final Logger logger = LogManager.getLogger("WindowParkingPaint");
 
     public WindowParkingPaint(){
         super();
+        DOMConfigurator.configure("log4j.xml");
         r = new Random();
         parkingCollection = new ParkingCollection(windowWidth, windowHeight);
         takenCars = new Stack<>();
         prepare_holst();
+        logger.fatal("TEST MESSAGE!!!");
     }
 
     private void Draw()
@@ -64,14 +64,26 @@ public class WindowParkingPaint extends JComponent implements ActionListener, Li
 
     public void valueChanged(ListSelectionEvent e){
         Draw();
+        //logger.info("Перешли на парковку " + WindowParking.lBParkings.getModel().getElementAt(WindowParking.lBParkings.getSelectedIndex()));
     }
 
     private void addCar(ITransport car) {
         if (car != null && WindowParking.lBParkings.getSelectedIndex() > -1) {
-            if (parkingCollection.getValue(WindowParking.lBParkings.getModel().getElementAt(WindowParking.lBParkings.getSelectedIndex())).add(car)) {
-                Draw();
-            } else {
-                JOptionPane.showMessageDialog(null, "Транспорт не удалось поставить");
+            try {
+                if (parkingCollection.getValue(WindowParking.lBParkings.getModel().getElementAt(WindowParking.lBParkings.getSelectedIndex())).add(car)) {
+                    Draw();
+                    logger.info("Добавлен автомобиль " + car);
+                } else {
+                    JOptionPane.showMessageDialog(null, "Транспорт не удалось поставить");
+                }
+            }
+            catch (ParkingOverflowException ex){
+                JOptionPane.showMessageDialog(null, ex.getMessage(), "Переполнение", JOptionPane.ERROR_MESSAGE);
+                logger.warn(ex.getMessage());
+            }
+            catch (Exception ex){
+                JOptionPane.showMessageDialog(null, ex.getMessage(), "Неизвестная ошибка", JOptionPane.ERROR_MESSAGE);
+                logger.fatal(ex.getMessage());
             }
         }
     }
@@ -84,6 +96,7 @@ public class WindowParkingPaint extends JComponent implements ActionListener, Li
                     JOptionPane.showMessageDialog(null, "Введите имя паровки!");
                     return;
                 }
+                logger.info("Добавили парковку " + parkName);
                 parkingCollection.AddParking(parkName);
                 ReloadLevels();
                 break;
@@ -91,6 +104,7 @@ public class WindowParkingPaint extends JComponent implements ActionListener, Li
                 if (WindowParking.lBParkings.getSelectedIndex() > -1) {
                     int dialRes = JOptionPane.showConfirmDialog(null, "Вы хотите удалить парковку " + WindowParking.lBParkings.getModel().getElementAt(WindowParking.lBParkings.getSelectedIndex()) + " ?", "Предупреждение", JOptionPane.OK_CANCEL_OPTION);
                     if (dialRes == JOptionPane.OK_OPTION) {
+                        logger.info("Удалили парковку " + WindowParking.lBParkings.getModel().getElementAt(WindowParking.lBParkings.getSelectedIndex()));
                         parkingCollection.DelParking(WindowParking.lBParkings.getModel().getElementAt(WindowParking.lBParkings.getSelectedIndex()));
                         ReloadLevels();
                     }
@@ -102,6 +116,7 @@ public class WindowParkingPaint extends JComponent implements ActionListener, Li
                     formConf.addEvent(this::addCar);
                 } catch (Exception ex) {
                     ex.printStackTrace();
+                    logger.fatal(ex.getMessage());
                 }
                 break;
             case "take":
@@ -112,11 +127,23 @@ public class WindowParkingPaint extends JComponent implements ActionListener, Li
                         return;
                     }
                     Parking parking = parkingCollection.getValue(WindowParking.lBParkings.getModel().getElementAt(WindowParking.lBParkings.getSelectedIndex()));
-                    ITransport car = parking.takeBrone(Integer.parseInt(tmp));
-                    if (car != null) {
-                        takenCars.add(car);
+                    ITransport car = null;
+                    try {
+                        car = parking.takeBrone(Integer.parseInt(tmp));
+                        if (car != null) {
+                            takenCars.add(car);
+                            logger.info("Изъят автомобиль " +  car + " с места " + tmp);
+                        }
+                        Draw();
                     }
-                    Draw();
+                    catch (ParkingNotFoundException ex){
+                        JOptionPane.showMessageDialog(null, ex.getMessage(), "Не найдено", JOptionPane.ERROR_MESSAGE);
+                        logger.error(ex.getMessage());
+                    }
+                    catch (Exception ex){
+                        JOptionPane.showMessageDialog(null, ex.getMessage(), "Неизвестная ошибка", JOptionPane.ERROR_MESSAGE);
+                        logger.fatal(ex.getMessage());
+                    }
                 }
                 break;
             case "takeStack":
@@ -132,11 +159,14 @@ public class WindowParkingPaint extends JComponent implements ActionListener, Li
                 int result = fileChooser.showOpenDialog(this);
                 if (result == JFileChooser.APPROVE_OPTION) {
                     JOptionPane.showMessageDialog(this, "Файл \"" + fileChooser.getSelectedFile() + "\" выбран как выходной");
-                    if (parkingCollection.SaveData(fileChooser.getSelectedFile().getAbsolutePath())) {
+                    try {
+                        parkingCollection.SaveData(fileChooser.getSelectedFile().getAbsolutePath());
+                        logger.info("Сохранено в файл " + fileChooser.getSelectedFile().getAbsolutePath());
                         JOptionPane.showMessageDialog(this, "Сохранили!");
                     }
-                    else {
-                        JOptionPane.showMessageDialog(this, "Не сохранили!");
+                    catch (Exception ex){
+                        JOptionPane.showMessageDialog(null, ex.getMessage(), "Неизвестная ошибка при сохранении", JOptionPane.ERROR_MESSAGE);
+                        logger.fatal(ex.getMessage());
                     }
                 }
                 break;
@@ -146,13 +176,16 @@ public class WindowParkingPaint extends JComponent implements ActionListener, Li
                 result = fileChooser.showOpenDialog(this);
                 if (result == JFileChooser.APPROVE_OPTION) {
                     JOptionPane.showMessageDialog(this, "Файл \"" + fileChooser.getSelectedFile() + "\" выбран как входной");
-                    if (parkingCollection.LoadData(fileChooser.getSelectedFile().getAbsolutePath())) {
+                    try {
+                        parkingCollection.LoadData(fileChooser.getSelectedFile().getAbsolutePath());
                         JOptionPane.showMessageDialog(this, "Загрузили!");
+                        logger.info("Загружено из файла " + fileChooser.getSelectedFile().getAbsolutePath());
                         ReloadLevels();
                         Draw();
                     }
-                    else {
-                        JOptionPane.showMessageDialog(this, "Не загрузили!");
+                    catch (Exception ex) {
+                        JOptionPane.showMessageDialog(null, ex.getMessage(), "Неизвестная ошибка при агрузке", JOptionPane.ERROR_MESSAGE);
+                        logger.fatal(ex.getMessage());
                     }
                 }
                 break;
@@ -162,11 +195,14 @@ public class WindowParkingPaint extends JComponent implements ActionListener, Li
                 result = fileChooser.showOpenDialog(this);
                 if (result == JFileChooser.APPROVE_OPTION) {
                     JOptionPane.showMessageDialog(this, "Файл \"" + fileChooser.getSelectedFile() + "\" выбран как выходной");
-                    if(parkingCollection.saveLevel(fileChooser.getSelectedFile().getAbsolutePath(), WindowParking.lBParkings.getSelectedValue())){
+                    try {
+                        parkingCollection.saveLevel(fileChooser.getSelectedFile().getAbsolutePath(), WindowParking.lBParkings.getSelectedValue());
+                        logger.info("Сохранено в файл " + fileChooser.getSelectedFile().getAbsolutePath());
                         JOptionPane.showMessageDialog(this, "Сохранили!");
                     }
-                    else {
-                        JOptionPane.showMessageDialog(this, "Не сохранили!");
+                    catch (Exception ex){
+                        JOptionPane.showMessageDialog(null, ex.getMessage(), "Неизвестная ошибка при сохранении", JOptionPane.ERROR_MESSAGE);
+                        logger.fatal(ex.getMessage());
                     }
                 }
                 break;
@@ -176,13 +212,16 @@ public class WindowParkingPaint extends JComponent implements ActionListener, Li
                 result = fileChooser.showOpenDialog(this);
                 if (result == JFileChooser.APPROVE_OPTION) {
                     JOptionPane.showMessageDialog(this, "Файл \"" + fileChooser.getSelectedFile() + "\" выбран как входной");
-                    if (parkingCollection.loadLevel(fileChooser.getSelectedFile().getAbsolutePath())) {
+                    try {
+                        parkingCollection.loadLevel(fileChooser.getSelectedFile().getAbsolutePath());
                         JOptionPane.showMessageDialog(this, "Загрузили!");
+                        logger.info("Загружено из файла " + fileChooser.getSelectedFile().getAbsolutePath());
                         ReloadLevels();
                         Draw();
                     }
-                    else {
-                        JOptionPane.showMessageDialog(this, "Не загрузили!");
+                    catch (Exception ex){
+                        JOptionPane.showMessageDialog(null, ex.getMessage(), "Неизвестная ошибка при агрузке", JOptionPane.ERROR_MESSAGE);
+                        logger.fatal(ex.getMessage());
                     }
                 }
                 break;
