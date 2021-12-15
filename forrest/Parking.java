@@ -31,21 +31,19 @@ public class Parking <T extends ITransport, V extends IWeapon>{
         return _places.get(index) == null;
     }
 
-    public boolean add(T car)
-    {
-        if(_places.size() < _maxCount)
+    public boolean add(T car) throws ParkingOverflowException {
+        if(_places.size() >= _maxCount)
         {
-            _places.add(car);
-            return true;
+            throw new ParkingOverflowException();
         }
-        return false;
+        _places.add(car);
+        return true;
     }
 
-    public T takeBrone (int index)
-    {
+    public T takeBrone (int index) throws ParkingNotFoundException {
         if (index < 0 || index > _places.size())
         {
-            return null;
+            throw new ParkingNotFoundException(index);
         }
         if (!CheckFreePlace(index))
         {
